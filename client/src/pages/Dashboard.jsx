@@ -5,82 +5,31 @@ import CreationItem from '../components/CreationItem'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-// Set axios defaults
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
-axios.defaults.baseURL = API_BASE_URL
-
-console.log('API Base URL:', API_BASE_URL)
+// Set axios defaults for local development
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || 'http://localhost:3000'
 
 const Dashboard = () => {
  
   const [creations, setCreations] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
   const { getToken } = useAuth()
 
   const getDashboardData = async () => {
     try {
-      setLoading(true)
-      setError(null)
-      
-      console.log('Making API call to:', `${API_BASE_URL}/api/user/get-user-creations`)
-      
-      // First try without authentication for testing
-      const response = await axios.get('/api/user/get-user-creations', {
-        timeout: 10000, // 10 second timeout
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+      const { data } = await axios.get('/api/user/get-user-creations', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
       })
-      
-      console.log('API Response:', response.data)
 
-      if (response.data.success) {
-        setCreations(response.data.creations || [])
-        if (response.data.note) {
-          toast.success(response.data.note)
-        }
+      if (data.success) {
+        setCreations(data.creations)
       } else {
-        setError(response.data.message || 'Failed to fetch creations')
-        toast.error(response.data.message || 'Failed to fetch creations')
+        toast.error(data.message)
       }
     } catch (error) {
       console.error('API Error:', error)
-      
-      let errorMessage = 'Network error occurred'
-      
-      if (error.code === 'ECONNABORTED') {
-        errorMessage = 'Request timeout - server is taking too long to respond'
-      } else if (error.response) {
-        // Server responded with error status
-        errorMessage = `Server error: ${error.response.status} - ${error.response.data?.message || error.response.statusText}`
-      } else if (error.request) {
-        // Request was made but no response received
-        errorMessage = 'No response from server - check if server is running'
-      } else {
-        // Something else happened
-        errorMessage = error.message || 'Unknown error occurred'
-      }
-      
-      setError(errorMessage)
-      toast.error(errorMessage)
-      
-      // Set dummy data as fallback
-      const fallbackCreations = [
-        {
-          id: 'fallback-1',
-          title: 'Fallback Article',
-          content: 'This is fallback content shown when API is not available',
-          type: 'article',
-          created_at: new Date().toISOString(),
-          user_id: 'fallback-user'
-        }
-      ]
-      setCreations(fallbackCreations)
-    } finally {
-      setLoading(false)
+      toast.error(error.response?.data?.message || error.message || 'Failed to fetch creations')
     }
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -102,18 +51,6 @@ const Dashboard = () => {
       <div className='relative z-10'>
         <h1 className='text-3xl font-bold text-gray-800 mb-2'>Welcome back! 👋</h1>
         <p className='text-gray-600 mb-8'>Here's what's happening with your creations today.</p>
-        
-        {/* Debug Info */}
-        <div className='mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200'>
-          <p className='text-sm text-blue-700'>
-            <strong>API URL:</strong> {API_BASE_URL}
-          </p>
-          {error && (
-            <p className='text-sm text-red-700 mt-2'>
-              <strong>Error:</strong> {error}
-            </p>
-          )}
-        </div>
         
         <div className='flex justify-start gap-6 flex-wrap mb-8'>
           
@@ -172,14 +109,6 @@ const Dashboard = () => {
                   <Sparkles className='w-16 h-16 text-gray-300 mb-4' />
                   <p className='text-gray-500 text-lg font-medium'>No creations yet</p>
                   <p className='text-gray-400 text-sm mt-2'>Start creating something amazing!</p>
-                  {error && (
-                    <button 
-                      onClick={getDashboardData}
-                      className='mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'
-                    >
-                      Retry Connection
-                    </button>
-                  )}
                 </div>
               )
             }
