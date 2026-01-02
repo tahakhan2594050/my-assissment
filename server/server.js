@@ -1,62 +1,85 @@
 import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
-import { clerkMiddleware, requireAuth } from '@clerk/express'
-import aiRouter from './routes/aiRoutes.js';
-import connectCloudinary from './configs/cloudinary.js';
-import userRouter from './routes/userRoutes.js';
+import { clerkMiddleware, requireAuth } from '@clerk/express';
 
-const app = express()
-
-// Initialize Cloudinary
-let cloudinaryInitialized = false;
-const initCloudinary = async () => {
-  if (!cloudinaryInitialized) {
-    await connectCloudinary();
-    cloudinaryInitialized = true;
-  }
-};
+const app = express();
 
 // CORS configuration for production
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? [process.env.CLIENT_URL, 'https://*.vercel.app'] 
-    : ['http://localhost:5173', 'http://localhost:3000'],
-  credentials: true
-}));
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://localhost:3000',
+      'https://localhost:5173'
+    ];
+    
+    // Allow all vercel.app domains
+    if (origin.includes('.vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    
+    return callback(null, true); // Allow all for now
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with']
+};
 
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Add Clerk middleware
 app.use(clerkMiddleware());
 
-// Health check endpoint
+// Health check endpoint (no auth required)
 app.get('/', (req, res) => {
   res.json({ 
     message: 'AI Content Creation API is Live!', 
     status: 'healthy',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
   });
 });
 
-// Public routes (no auth required)
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
-// Initialize Cloudinary before handling requests
-app.use(async (req, res, next) => {
+// Import routes dynamically to avoid top-level await issues
+app.use('/api/ai', requireAuth(), async (req, res, next) => {
   try {
-    await initCloudinary();
-    next();
+    const { default: aiRouter } = await import('./routes/aiRoutes.js');
+    aiRouter(req, res, next);
   } catch (error) {
-    console.error('Cloudinary initialization error:', error);
-    next();
+    console.error('Error loading AI routes:', error);
+    res.status(500).json({ success: false, message: 'AI routes unavailable' });
   }
 });
 
-// Protected routes
-app.use('/api/ai', requireAuth(), aiRouter);
-app.use('/api/user', requireAuth(), userRouter);
+app.use('/api/user', requireAuth(), async (req, res, next) => {
+  try {
+    const { default: userRouter } = await import('./routes/userRoutes.js');
+    userRouter(req, res, next);
+  } catch (error) {
+    console.error('Error loading user routes:', error);
+    res.status(500).json({ success: false, message: 'User routes unavailable' });
+  }
+});
 
 // Error handling middleware
 app.use((error, req, res, next) => {
@@ -72,11 +95,11 @@ app.use((error, req, res, next) => {
 app.use((req, res) => {
   res.status(404).json({ 
     success: false, 
-    message: 'Route not found' 
+    message: `Route ${req.method} ${req.path} not found` 
   });
 });
 
-// For Vercel serverless functions
+// Export for Vercel
 export default app;
 
 // For local development
