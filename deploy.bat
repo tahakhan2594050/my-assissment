@@ -1,56 +1,59 @@
 @echo off
-echo 🚀 Starting FIXED deployment to Vercel...
+echo 🔧 FIXED Vercel Deployment Script
 echo.
-echo ✅ Issues Fixed:
-echo    - Serverless function compatibility
-echo    - CORS configuration
-echo    - Cloudinary initialization
-echo    - Error handling
+echo ✅ Applied Fixes:
+echo    - Serverless function structure
+echo    - Removed top-level await issues
+echo    - Added proper CORS headers
+echo    - Simplified authentication
+echo    - Added database fallback
 echo.
 
-REM Deploy server first
-echo 📡 Deploying server (FIXED VERSION)...
+echo 📡 Deploying FIXED server to Vercel...
 cd server
 call vercel --prod
+
 if %errorlevel% neq 0 (
     echo ❌ Server deployment failed!
-    echo 📋 Check the logs and ensure all environment variables are set
+    echo 📋 Check the error above and try again
     pause
     exit /b 1
 )
+
 echo ✅ Server deployed successfully!
 echo.
-
-REM Prompt for server URL update
-echo 📝 IMPORTANT: Copy your server URL from Vercel dashboard
-echo 🔄 Add environment variables in Vercel dashboard (see DEPLOYMENT_ENV_VARIABLES.md)
-echo 💡 Test server health: https://your-server-url.vercel.app/api/health
+echo 🧪 Testing endpoints...
+echo 📋 Test these URLs in your browser:
+echo    Health: https://your-server-url.vercel.app/api/health
+echo    Main: https://your-server-url.vercel.app/
 echo.
+echo 📝 IMPORTANT: Add environment variables in Vercel Dashboard
+echo    See FIXED_DEPLOYMENT_GUIDE.md for the complete list
+echo.
+
 pause
 
-REM Deploy client
-echo 🎨 Deploying client...
+echo 🎨 Now deploying client...
 cd ../client
 call vercel --prod
+
 if %errorlevel% neq 0 (
     echo ❌ Client deployment failed!
     pause
     exit /b 1
 )
+
 echo ✅ Client deployed successfully!
 echo.
-
-echo 🎉 Deployment complete!
-echo.
-echo 📋 Final checklist:
-echo    ✅ Add all environment variables in Vercel dashboard
-echo    ✅ Test server health endpoint
-echo    ✅ Test client application
-echo    ✅ Verify authentication works
-echo    ✅ Test AI features
+echo 🎉 Deployment Complete!
 echo.
 echo 🌐 Your app should be live at:
 echo    Frontend: https://your-client-url.vercel.app
 echo    Backend: https://your-server-url.vercel.app
+echo.
+echo 📋 Final Steps:
+echo    1. Add environment variables in Vercel dashboard
+echo    2. Test all endpoints
+echo    3. Update client VITE_BASE_URL with server URL
 echo.
 pause
