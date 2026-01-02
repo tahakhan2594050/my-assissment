@@ -3,6 +3,8 @@
 ## Server Environment Variables (Add these in Vercel Dashboard)
 
 ```
+NODE_ENV=production
+
 DATABASE_URL=postgresql://neondb_owner:npg_Mf3kc8PJnDVO@ep-cool-dew-a8vp8iaa-pooler.eastus2.azure.neon.tech/neondb?sslmode=require&channel_binding=require
 
 CLERK_PUBLISHABLE_KEY=pk_test_Zmxvd2luZy1jb2QtMjIuY2xlcmsuYWNjb3VudHMuZGV2JA
@@ -18,6 +20,8 @@ CLOUDINARY_API_KEY=496631313825875
 CLOUDINARY_API_SECRET=gfRUs8kMNq3OeoZJswOJC4O4WHI
 
 GOOGLE_API_KEY=AIzaSyAZjDTX9cj2Tm6w9NNKQLMBpoVcz50MFrc
+
+CLIENT_URL=https://your-client-deployment-url.vercel.app
 ```
 
 ## Client Environment Variables
@@ -27,4 +31,7 @@ VITE_CLERK_PUBLISHABLE_KEY=pk_test_Zmxvd2luZy1jb2QtMjIuY2xlcmsuYWNjb3VudHMuZGV2J
 VITE_BASE_URL=https://your-server-deployment-url.vercel.app
 ```
 
-**Important:** Replace `your-server-deployment-url` with your actual server deployment URL from Vercel.
+**Important:** 
+1. Replace `your-server-deployment-url` with your actual server deployment URL from Vercel
+2. Replace `your-client-deployment-url` with your actual client deployment URL from Vercel
+3. Add CLIENT_URL environment variable to server for CORS configuration
