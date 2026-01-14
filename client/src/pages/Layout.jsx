@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { assets } from '../assets/assets'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Settings } from 'lucide-react'
 import Sidebar from '../components/Sidebar'
 import {SignIn, useUser } from '@clerk/clerk-react'
 
@@ -21,18 +21,30 @@ const Layout = () => {
           alt="" 
           onClick={()=>navigate('/')} 
         />
-        {
-          sidebar ? 
-          <X 
-            onClick={()=> setSidebar(false)} 
-            className='w-6 h-6 text-gray-600 sm:hidden hover:text-gray-900 hover:rotate-90 transition-all cursor-pointer'
-          />
-          : 
-          <Menu 
-            onClick={()=> setSidebar(true)} 
-            className='w-6 h-6 text-gray-600 sm:hidden hover:text-gray-900 hover:scale-110 transition-all cursor-pointer'
-          />
-        }
+        
+        {/* Admin Panel Button in Header */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/admin')}
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+          >
+            <Settings className="w-4 h-4" />
+            <span className="font-medium">Admin Panel</span>
+          </button>
+          
+          {
+            sidebar ? 
+            <X 
+              onClick={()=> setSidebar(false)} 
+              className='w-6 h-6 text-gray-600 sm:hidden hover:text-gray-900 hover:rotate-90 transition-all cursor-pointer'
+            />
+            : 
+            <Menu 
+              onClick={()=> setSidebar(true)} 
+              className='w-6 h-6 text-gray-600 sm:hidden hover:text-gray-900 hover:scale-110 transition-all cursor-pointer'
+            />
+          }
+        </div>
       </nav>
       <div className='flex-1 w-full flex h-[calc(100vh-64px)]'>
           <Sidebar sidebar={sidebar} setSidebar={setSidebar}/>
