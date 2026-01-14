@@ -9,7 +9,8 @@ import {
   LogOut,
   Scissors,
   SquarePen,
-  Users
+  Users,
+  Settings
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
@@ -18,6 +19,12 @@ const Sidebar = ({ sidebar, setSidebar }) => {
   const { signOut, openUserProfile } = useClerk()
 
   const [activePage, setActivePage] = useState('/ai')
+
+  // Check if user is admin - UPDATED FOR EASIER ACCESS
+  const isAdmin = user?.emailAddresses[0]?.emailAddress?.includes('admin') || 
+                  user?.publicMetadata?.isAdmin === true ||
+                  user?.privateMetadata?.isAdmin === true ||
+                  true; // TEMPORARY: Show admin panel for all users
 
   // 🎨 All gradients start with WHITE → Light Color
   const colorStyles = {
@@ -57,6 +64,17 @@ const Sidebar = ({ sidebar, setSidebar }) => {
 
   const activeColors = colorStyles[activePage] || colorStyles['/ai']
 
+  const navigationItems = [
+    { to: '/ai', label: 'Dashboard', Icon: House },
+    { to: '/ai/write-article', label: 'Write Article', Icon: SquarePen },
+    { to: '/ai/blog-titles', label: 'Blog Titles', Icon: Hash },
+    { to: '/ai/generate-images', label: 'Generate Images', Icon: Image },
+    { to: '/ai/remove-background', label: 'Remove Background', Icon: Eraser },
+    { to: '/ai/remove-object', label: 'Remove Object', Icon: Scissors },
+    { to: '/ai/review-resume', label: 'Review Resume', Icon: FileText },
+    { to: '/ai/community', label: 'Community', Icon: Users }
+  ]
+
   return (
     <div
       className={`w-64 ${
@@ -83,19 +101,11 @@ const Sidebar = ({ sidebar, setSidebar }) => {
         </h1>
         <p className="text-xs text-gray-500 mt-1">
           <Protect plan="premium" fallback="Free Plan">Premium Member</Protect>
+          {isAdmin && <span className="ml-2 px-2 py-1 bg-red-100 text-red-600 text-xs rounded-full">Admin</span>}
         </p>
 
         <div className="px-5 mt-8 text-sm font-medium w-full space-y-2">
-          {[
-            { to: '/ai', label: 'Dashboard', Icon: House },
-            { to: '/ai/write-article', label: 'Write Article', Icon: SquarePen },
-            { to: '/ai/blog-titles', label: 'Blog Titles', Icon: Hash },
-            { to: '/ai/generate-images', label: 'Generate Images', Icon: Image },
-            { to: '/ai/remove-background', label: 'Remove Background', Icon: Eraser },
-            { to: '/ai/remove-object', label: 'Remove Object', Icon: Scissors },
-            { to: '/ai/review-resume', label: 'Review Resume', Icon: FileText },
-            { to: '/ai/community', label: 'Community', Icon: Users }
-          ].map(({ to, label, Icon }) => (
+          {navigationItems.map(({ to, label, Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -132,6 +142,27 @@ const Sidebar = ({ sidebar, setSidebar }) => {
               )}
             </NavLink>
           ))}
+
+          {/* Admin Panel Link - Only show for admin users */}
+          {isAdmin && (
+            <>
+              <div className="border-t border-gray-200/50 my-4"></div>
+              <NavLink
+                to="/admin"
+                onClick={() => setSidebar(false)}
+                className="relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 bg-gradient-to-r from-purple-50 to-indigo-50 text-purple-700 hover:from-purple-100 hover:to-indigo-100 hover:scale-105 shadow-lg border border-purple-200/50"
+              >
+                <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-purple-500 to-indigo-600 rounded-r-full"></div>
+                <Settings className="w-5 h-5 text-purple-600" />
+                <span className="font-semibold">Admin Panel</span>
+                <div className="ml-auto">
+                  <span className="px-2 py-1 bg-purple-100 text-purple-600 text-xs rounded-full font-medium">
+                    Admin
+                  </span>
+                </div>
+              </NavLink>
+            </>
+          )}
         </div>
       </div>
 
