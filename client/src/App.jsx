@@ -5,11 +5,12 @@ import Layout from './pages/Layout'
 import Dashboard from './pages/Dashboard'
 import WriteArticle from './pages/WriteArticle'
 import BlogTitles from './pages/BlogTitles'
-import GenrateImages from './pages/GenerateImages'
+import GenerateImages from './pages/GenerateImages'
 import RemoveBackground from './pages/RemoveBackground'
 import RemoveObject from './pages/RemoveObject'
 import ReviewResume from './pages/ReviewResume'
 import Community from './pages/Community'
+import AdminPanel from './pages/AdminPanel'
 import {Toaster} from 'react-hot-toast'
 
 const App = () => {
@@ -22,12 +23,13 @@ const App = () => {
           <Route index element={<Dashboard />}/>
           <Route path='write-article' element={<WriteArticle />}/>
           <Route path='blog-titles' element={<BlogTitles />}/>
-          <Route path='generate-images' element={<GenrateImages/>}/>
+          <Route path='generate-images' element={<GenerateImages/>}/>
           <Route path='remove-background' element={<RemoveBackground />}/>
           <Route path='remove-object' element={<RemoveObject />}/>
           <Route path='review-resume' element={<ReviewResume />}/>
           <Route path='community' element={<Community />}/>
         </Route>
+        <Route path='/admin' element={<AdminPanel />}/>
       </Routes>
     </div>
   )
