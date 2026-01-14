@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Settings } from 'lucide-react'
 import { useClerk, UserButton, useUser } from '@clerk/clerk-react'
 
 const Navbar = () => {
@@ -36,6 +36,17 @@ const Navbar = () => {
     hover:scale-[1.07] hover:shadow-[#99c5ff]/70 active:scale-[0.96]
   `
 
+  const adminButtonClasses = `
+    flex items-center gap-2 rounded-full text-sm cursor-pointer 
+    bg-gradient-to-r from-purple-500 to-indigo-600 text-white 
+    px-6 py-2.5 font-semibold
+    shadow-lg shadow-purple-500/30
+    transition-all duration-300 ease-in-out 
+    hover:from-purple-600 hover:to-indigo-700
+    hover:scale-105 hover:shadow-purple-500/50 active:scale-95
+    border border-purple-400/20
+  `
+
   const arrowClasses = 'w-4 h-4 transition-transform duration-300 group-hover:translate-x-1'
 
   return (
@@ -56,22 +67,34 @@ const Navbar = () => {
         style={{ backgroundColor: 'transparent' }}
       />
 
-      {user ? (
-        <UserButton
-          afterSignOutUrl="/"
-          appearance={{
-            elements: {
-              userButtonAvatarBox: 'w-10 h-10',
-              userButtonPopoverCard: 'shadow-2xl'
-            }
-          }}
-        />
-      ) : (
-        <button onClick={openSignIn} className={`group ${buttonClasses}`}>
-          Get started
-          <ArrowRight className={arrowClasses} />
-        </button>
-      )}
+      <div className="flex items-center gap-4">
+        {user && (
+          <button 
+            onClick={() => navigate('/admin')} 
+            className={`group ${adminButtonClasses}`}
+          >
+            <Settings className="w-4 h-4" />
+            Admin Panel
+          </button>
+        )}
+        
+        {user ? (
+          <UserButton
+            afterSignOutUrl="/"
+            appearance={{
+              elements: {
+                userButtonAvatarBox: 'w-10 h-10',
+                userButtonPopoverCard: 'shadow-2xl'
+              }
+            }}
+          />
+        ) : (
+          <button onClick={openSignIn} className={`group ${buttonClasses}`}>
+            Get started
+            <ArrowRight className={arrowClasses} />
+          </button>
+        )}
+      </div>
     </div>
   )
 }
